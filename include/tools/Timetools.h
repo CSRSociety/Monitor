@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <string>
+#include "iomanip"
 #include <sstream>
 
 using namespace std::chrono;
@@ -38,7 +39,18 @@ public:
     static inline SteadyTPoint
                         get_steady_time();
 
-    static string       report_time();
+    static string       report_time() {
+        auto time = get_time();
+        auto tt = system_clock::to_time_t(time);
+        auto tm = gmtime(&tt);
+
+        std::stringstream st;
+
+        st << std::setfill('0') << "[" << std::setw(2) << (tm->tm_hour + 8) % 24 << ":" << std::setw(2)
+           << tm->tm_min << ":" << std::setw(2) << tm->tm_sec
+           << "]";
+        return st.str();
+    }
 
 
 };
@@ -49,18 +61,6 @@ SystemTPoint Time::get_time() {
 
 SteadyTPoint Time::get_steady_time() {
     return std::chrono::_V2::steady_clock::now();
-}
-
-string Time::report_time() {
-    auto time = get_time();
-    auto tt = system_clock::to_time_t(time);
-    auto tm = gmtime(&tt);
-
-    std::stringstream st;
-    st << "[" << tm->tm_hour + 8 << ":" << tm->tm_min << ":" << tm->tm_sec
-                      << "]";
-
-    return st.str();
 }
 
 #endif // TIMER_H_
